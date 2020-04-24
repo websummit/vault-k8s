@@ -26,7 +26,7 @@ func (a *Agent) ContainerInitSidecar() (corev1.Container, error) {
 	}
 	volumeMounts = append(volumeMounts, a.ContainerVolumeMounts()...)
 
-	arg := DefaultContainerArg
+	args := []string{DefaultContainerArg}
 
 	if a.ConfigMapName != "" {
 		volumeMounts = append(volumeMounts, corev1.VolumeMount{
@@ -34,7 +34,17 @@ func (a *Agent) ContainerInitSidecar() (corev1.Container, error) {
 			MountPath: configVolumePath,
 			ReadOnly:  true,
 		})
-		arg = fmt.Sprintf("export CONSUL_HTTP_ADDR=$HOST_IP:8500 && consul login -method kubernetes -bearer-token-file '/run/secrets/kubernetes.io/serviceaccount/token' -token-sink-file '/home/vault/consul.token' && export CONSUL_HTTP_TOKEN=$(cat /home/vault/consul.token) && touch %s && vault agent -config=%s/config-init.hcl", TokenFile, configVolumePath)
+		args = []string{fmt.Sprintf("touch %s && vault agent -config=%s/config-init.hcl", TokenFile, configVolumePath)}
+	}
+
+	if a.Args != "" {
+		args = []string{a.Args, args[0]}
+	}
+
+	command := []string{"/bin/sh", "-ec"}
+
+	if a.Command != "" {
+		command = []string{a.Command}
 	}
 
 	if a.Vault.TLSSecret != "" {
@@ -62,7 +72,7 @@ func (a *Agent) ContainerInitSidecar() (corev1.Container, error) {
 		Resources:       resources,
 		SecurityContext: a.securityContext(),
 		VolumeMounts:    volumeMounts,
-		Command:         []string{"/bin/sh", "-ec"},
-		Args:            []string{arg},
+		Command:         command,
+		Args:            args,
 	}, nil
 }

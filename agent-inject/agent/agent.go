@@ -31,6 +31,12 @@ type Agent struct {
 	// sidecar container.
 	ImageName string
 
+	// Command is the overriding command to use to start the agent
+	Command string
+
+	// Args is the overriding args to use with the command to start the agent
+	Args string
+
 	// Inject is the flag used to determine if a container should be requested
 	// in a pod request.
 	Inject bool
@@ -183,6 +189,8 @@ func New(pod *corev1.Pod, patches []*jsonpatch.JsonPatchOperation) (*Agent, erro
 		Annotations:        pod.Annotations,
 		ConfigMapName:      pod.Annotations[AnnotationAgentConfigMap],
 		ImageName:          pod.Annotations[AnnotationAgentImage],
+		Command:            pod.Annotations[AnnotationAgentCommand],
+		Args:               pod.Annotations[AnnotationAgentArgs],
 		LimitsCPU:          pod.Annotations[AnnotationAgentLimitsCPU],
 		LimitsMem:          pod.Annotations[AnnotationAgentLimitsMem],
 		Namespace:          pod.Annotations[AnnotationAgentRequestNamespace],

@@ -39,6 +39,12 @@ const (
 	// from auth/token/lookup-self
 	AnnotationAgentInjectToken = "vault.hashicorp.com/agent-inject-token"
 
+	// AnnotationAgentCommand is the annotation key for customizing the agent container command
+	AnnotationAgentCommand = "vault.hashicorp.com/agent-command"
+
+	// AnnotationAgentArgs is the annotation key for customizing the agent container args
+	AnnotationAgentArgs = "vault.hashicorp.com/agent-args"
+
 	// AnnotationAgentInjectCommand is the key annotation that configures Vault Agent
 	// to run a command after the secret is rendered. The name of the template is any
 	// unique string after "vault.hashicorp.com/agent-inject-command-". This should map
