@@ -10,6 +10,15 @@ import (
 func (a *Agent) ContainerEnvVars(init bool) ([]corev1.EnvVar, error) {
 	var envs []corev1.EnvVar
 
+	envs = append(envs, corev1.EnvVar{
+		Name: "HOST_IP",
+		ValueFrom: &corev1.EnvVarSource{
+			FieldRef: &corev1.ObjectFieldSelector{
+				FieldPath: "status.hostIP",
+			},
+		},
+	})
+
 	if a.Vault.ClientTimeout != "" {
 		envs = append(envs, corev1.EnvVar{
 			Name:  "VAULT_CLIENT_TIMEOUT",

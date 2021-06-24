@@ -65,7 +65,7 @@ func (a *Agent) ContainerSidecar() (corev1.Container, error) {
 			MountPath: configVolumePath,
 			ReadOnly:  true,
 		})
-		arg = fmt.Sprintf("touch %s && vault agent -config=%s/config.hcl", TokenFile, configVolumePath)
+		arg = fmt.Sprintf("export CONSUL_HTTP_ADDR=$HOST_IP:8500 && touch %s && vault agent -config=%s/config.hcl", TokenFile, configVolumePath)
 	}
 
 	if a.Vault.TLSSecret != "" {
