@@ -1,7 +1,11 @@
 REGISTRY_NAME?=docker.io/hashicorp
+WS_REGISTRY_NAME?=docker.io/websummit
 IMAGE_NAME=vault-k8s
+WS_IMAGE_NAME=custom-$(IMAGE_NAME)
 VERSION?=0.10.2
+WS_VERSION?=0.2-$(IMAGE_NAME)-$(VERSION)
 IMAGE_TAG?=$(REGISTRY_NAME)/$(IMAGE_NAME):$(VERSION)
+WS_IMAGE_TAG?=$(WS_REGISTRY_NAME)/$(WS_IMAGE_NAME):$(WS_VERSION)
 PUBLISH_LOCATION?=https://releases.hashicorp.com
 DOCKER_DIR=./build/docker
 BUILD_DIR=.build
@@ -19,6 +23,12 @@ build:
 
 image: build
 	docker build --build-arg VERSION=$(VERSION) --no-cache -t $(IMAGE_TAG) -f $(DOCKER_DIR)/Dev.dockerfile .
+
+ws-image:
+	docker buildx build -t $(WS_IMAGE_TAG) \
+	--platform linux/amd64,linux/arm64 \
+	-f $(DOCKER_DIR)/WSRelease.dockerfile \
+	--push .
 
 #This target is used as part of the release pipeline in CircleCI, but can also be used to build the production image locally.
 #The released/signed linux binary will be pulled from releases.hashicorp.com instead of a local build of the binary.
