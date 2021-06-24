@@ -11,10 +11,10 @@ import (
 
 const (
 	// https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#meaning-of-cpu
-	DefaultResourceLimitCPU   = "500m"
-	DefaultResourceLimitMem   = "128Mi"
-	DefaultResourceRequestCPU = "250m"
-	DefaultResourceRequestMem = "64Mi"
+	DefaultResourceLimitCPU   = "200m"
+	DefaultResourceLimitMem   = "64Mi"
+	DefaultResourceRequestCPU = "100m"
+	DefaultResourceRequestMem = "32Mi"
 	DefaultContainerArg       = "echo ${VAULT_CONFIG?} | base64 -d > /home/vault/config.json && vault agent -config=/home/vault/config.json"
 	DefaultRevokeGrace        = 5
 	DefaultAgentLogLevel      = "info"
@@ -65,7 +65,7 @@ func (a *Agent) ContainerSidecar() (corev1.Container, error) {
 			MountPath: configVolumePath,
 			ReadOnly:  true,
 		})
-		arg = fmt.Sprintf("touch %s && vault agent -config=%s/config.hcl", TokenFile, configVolumePath)
+		arg = fmt.Sprintf("export CONSUL_HTTP_ADDR=$HOST_IP:8500 && touch %s && vault agent -config=%s/config.hcl", TokenFile, configVolumePath)
 	}
 
 	if a.Vault.TLSSecret != "" {

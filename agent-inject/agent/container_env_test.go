@@ -14,12 +14,12 @@ func TestContainerEnvs(t *testing.T) {
 		agent        Agent
 		expectedEnvs []string
 	}{
-		{Agent{}, []string{"VAULT_CONFIG"}},
-		{Agent{ConfigMapName: "foobar"}, []string{}},
-		{Agent{Vault: Vault{ClientMaxRetries: "0"}}, []string{"VAULT_CONFIG", "VAULT_MAX_RETRIES"}},
-		{Agent{Vault: Vault{ClientTimeout: "5s"}}, []string{"VAULT_CONFIG", "VAULT_CLIENT_TIMEOUT"}},
-		{Agent{Vault: Vault{ClientMaxRetries: "0", ClientTimeout: "5s"}}, []string{"VAULT_CONFIG", "VAULT_MAX_RETRIES", "VAULT_CLIENT_TIMEOUT"}},
-		{Agent{ConfigMapName: "foobar", Vault: Vault{ClientMaxRetries: "0", ClientTimeout: "5s", LogLevel: "info", ProxyAddress: "http://proxy:3128"}}, []string{"VAULT_MAX_RETRIES", "VAULT_CLIENT_TIMEOUT", "VAULT_LOG_LEVEL", "HTTPS_PROXY"}},
+		{Agent{}, []string{"HOST_IP", "VAULT_CONFIG"}},
+		{Agent{ConfigMapName: "foobar"}, []string{"HOST_IP"}},
+		{Agent{Vault: Vault{ClientMaxRetries: "0"}}, []string{"HOST_IP", "VAULT_CONFIG", "VAULT_MAX_RETRIES"}},
+		{Agent{Vault: Vault{ClientTimeout: "5s"}}, []string{"HOST_IP", "VAULT_CONFIG", "VAULT_CLIENT_TIMEOUT"}},
+		{Agent{Vault: Vault{ClientMaxRetries: "0", ClientTimeout: "5s"}}, []string{"HOST_IP", "VAULT_CONFIG", "VAULT_MAX_RETRIES", "VAULT_CLIENT_TIMEOUT"}},
+		{Agent{ConfigMapName: "foobar", Vault: Vault{ClientMaxRetries: "0", ClientTimeout: "5s", LogLevel: "info", ProxyAddress: "http://proxy:3128"}}, []string{"HOST_IP", "VAULT_MAX_RETRIES", "VAULT_CLIENT_TIMEOUT", "VAULT_LOG_LEVEL", "HTTPS_PROXY"}},
 	}
 
 	for _, tt := range tests {
@@ -44,9 +44,9 @@ func TestContainerEnvsForIRSA(t *testing.T) {
 		agent        Agent
 		expectedEnvs []string
 	}{
-		{Agent{Pod: testPodWithoutIRSA()}, []string{"VAULT_CONFIG"}},
-		{Agent{Pod: testPodWithIRSA(), Vault: Vault{AuthType: "aws",}}, 
-			[]string{"VAULT_CONFIG", "AWS_ROLE_ARN", "AWS_WEB_IDENTITY_TOKEN_FILE"},
+		{Agent{Pod: testPodWithoutIRSA()}, []string{"HOST_IP", "VAULT_CONFIG"}},
+		{Agent{Pod: testPodWithIRSA(), Vault: Vault{AuthType: "aws"}},
+			[]string{"HOST_IP", "VAULT_CONFIG", "AWS_ROLE_ARN", "AWS_WEB_IDENTITY_TOKEN_FILE"},
 		},
 	}
 	for _, tt := range envTests {

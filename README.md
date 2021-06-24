@@ -1,3 +1,38 @@
+# This is a fork of hashicorp/vault-k8s project used by Web Summit in our K8s clusters
+
+### Motivation
+Vault agent is injected by vault-agent-injector (which runs vault-k8s) as an init and/or sidecar
+container on every pod through a Kubernetes admission webhook.
+These vault agents, as per the original project, allow to use consul-template to populate secrets
+and dynamic credentials from Vault into the application pods running on the main container of our
+pods. However it doesn't support using consul-template to do the same with consul and populate
+configurations, which we use for anything that is not sensitive.
+
+## Changes to the original vault-k8s project
+This fork makes 2 specific changes to the original vault-k8s project to address the lack of Consul support:
+
+  * Expose the node's IP to the injected container running vault-agent using the Kubernetes Downward API as
+  an environment variable named `HOST_IP`.
+
+  * Configure CONSUL_HTTP_ADDRESS to be used by consul-template by exporting the environment variable directly
+  on the arg that runs on the vault-agent container. Specifically CONSUL_HTTP_ADDRESS is set to `<HOST_IP>:8500`
+  which in turn allows consul template to communicate with the usual Consul agents running on each node if they
+  were enabled on your Consul prefered installation method. We use helm charts for this.
+
+  * We also reduced the default cpu and memory requests and limits since the original defaults were wasting a lot
+  of our cluster capacity, we never noticed any for additional resources after a year using this new defaults in
+  production.
+
+## Usage
+A Makefile task was added to build and push our own images to docker.io. You can find them [here](https://hub.docker.com/r/websummit/custom-vault-k8s/tags)
+
+Simply run:
+```
+make ws-image
+```
+
+---
+
 # Vault + Kubernetes (vault-k8s)
 
 > :warning: **Please note**: We take Vault's security and our users' trust very seriously. If 
